@@ -1,50 +1,31 @@
-import requests
-from bs4 import BeautifulSoup
+from sports_scraper import scrape_sports_news
+from scrape_turkey_news import scrape_turkey_news
+from scrape_world_news import scrape_world_news
+from scrape_local_news import scrape_local_news
+from scrape_business_news import scrape_business_news
+from scrape_science_and_tech_news import scrape_science_and_tech_news
+from scrape_entertainment_news import scrape_entertainment_news
+from scrape_health_news import scrape_health_news
 
-# Google Haberler sitesinden veri çekme işlemi
-url = "https://news.google.com/home?hl=tr&gl=TR&ceid=TR:tr"
-response = requests.get(url)
-soup = BeautifulSoup(response.content, 'html.parser')
 
-# Haberleri depolamak için boş bir liste oluşturun
-haberler = []
-
-# Kategorileri, kaynakları, URL'leri, kısa açıklamaları ve yayınlanma tarihlerini liste olarak kaydedin
-news_sections = soup.find_all('div', class_='EctEBd')
-sources = soup.find_all('div', class_='MCAGUe')
-links = soup.find_all('a', class_='WwrzSb')
-summaries = soup.find_all('h4', class_='gPFEn')
-dates = soup.find_all('time', class_='hvbAAd')
-
-for i, (category, source, link, summary, date) in enumerate(zip(news_sections, sources, links, summaries, dates), start=1):
-    category_text = category.text.strip()
-    source_div = source.find('div', class_='vr1PYe')
-
-    if source_div:
-        source_text = source_div.text.strip()
-    else:
-        source_text = "Kaynak bulunamadı"
-
-    news_url = f"https://news.google.com{link['href']}" if link else "URL bulunamadı"
-    summary_text = summary.text.strip() if summary else "Açıklama bulunamadı"
-    date_text = date.get('datetime') if date else "Tarih bulunamadı"
-
-    # Haberi bir sözlük olarak oluşturun ve haberler listesine ekleyin
-    haber = {
-        "Kategori": category_text,
-        "Kaynak": source_text,
-        "URL": news_url,
-        "Kısa Açıklama": summary_text,
-        "Yayınlanma Tarihi": date_text
+def lambda_handler(event, context):
+    turkey_result = scrape_turkey_news()
+    world_result = scrape_world_news()
+    local_result = scrape_local_news()
+    business_result = scrape_business_news()
+    sports_result = scrape_sports_news()
+    science_and_tech_result = scrape_science_and_tech_news()
+    entertainment_result = scrape_entertainment_news()
+    health_result = scrape_health_news()
+    final_result = {
+        "TurkeyResult": turkey_result,
+        "WorldResult": world_result,
+        "LocalResult": local_result,
+        "BusinessResult": business_result,
+        "SportsResult": sports_result,
+        "ScienceAndTechResult": science_and_tech_result,
+        "EntertainmentResult": entertainment_result,
+        "HealthResult": health_result,
     }
-    haberler.append(haber)
 
-# Tüm haberleri yazdırın
-for i, haber in enumerate(haberler, start=1):
-    print(f"{i}. Haber:")
-    print(f"Kategori: {haber['Kategori']}")
-    print(f"Kaynak: {haber['Kaynak']}")
-    print(f"URL: {haber['URL']}")
-    print(f"Kısa Açıklama: {haber['Kısa Açıklama']}")
-    print(f"Yayınlanma Tarihi: {haber['Yayınlanma Tarihi']}")
-    print("----------------------------------------")
+    return final_result
