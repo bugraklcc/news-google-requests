@@ -14,7 +14,7 @@ def scrape_local_news():
 
     result = {}
 
-    # Yerel kategorisi için URL'yi tanımla
+    # Define URL for local category
     url = "https://news.google.com/topics/CAAqHAgKIhZDQklTQ2pvSWJHOWpZV3hmZGpJb0FBUAE/sections/CAQiUENCSVNOam9JYkc5allXeGZkakpDRUd4dlkyRnNYM1l5WDNObFkzUnBiMjV5Q3hJSkwyMHZNRGs1TkRsdGVnc0tDUzl0THpBNU9UUTViU2dBKjEIACotCAoiJ0NCSVNGem9JYkc5allXeGZkako2Q3dvSkwyMHZNRGs1TkRsdEtBQVABUAE?hl=tr&gl=TR&ceid=TR%3Atr"
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
@@ -23,7 +23,7 @@ def scrape_local_news():
         if connection.open:
             cursor = connection.cursor()
 
-            # Verileri çıkar ve MySQL veritabanına yaz
+            # Extract data and write to MySQL database
             news_sections = soup.find_all('a', class_='brSCsc', jsname='sCfAK')
 
             local_data = []
@@ -60,19 +60,19 @@ def scrape_local_news():
 
                         local_data.append(news_item)
 
-                        # Verileri MySQL veritabanına ekleyin
+                        # Insert data into MySQL database
                         insert_query = 'INSERT INTO news.news_articles (category, source, url, short_description, publication_date) VALUES (%s, %s, %s, %s, %s)'
                         data = ("Yerel", source_text, news_url, summary_text, date_text)
                         cursor.execute(insert_query, data)
                         connection.commit()
 
-            result["Status"] = "Başarılı"
-            result["Message"] = "Yerel haberler başarıyla MySQL veritabanına eklenmiştir."
+            result["Status"] = "Successful"
+            result["Message"] = "Local news has been successfully added to the MySQL database."
             result["LocalData"] = local_data
 
     except Error as e:
-        result["Status"] = "Hata"
-        result["Message"] = f"MySQL Hatası: {e}"
+        result["Status"] = "Error"
+        result["Message"] = f"MySQL Error: {e}"
 
     finally:
         if 'cursor' in locals():

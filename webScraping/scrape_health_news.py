@@ -14,7 +14,7 @@ def scrape_health_news():
 
     result = {}
 
-    # Sağlık kategorisi için URL'yi tanımla
+    # Define URL for Health category
     url = "https://news.google.com/topics/CAAqIQgKIhtDQkFTRGdvSUwyMHZNR3QwTlRFU0FuUnlLQUFQAQ?hl=tr&gl=TR&ceid=TR%3Atr"
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
@@ -23,7 +23,7 @@ def scrape_health_news():
         if connection.open:
             cursor = connection.cursor()
 
-            # Verileri çıkar ve MySQL veritabanına yaz
+            # Extract data and write to MySQL database
             news_sections = soup.find_all('a', class_='brSCsc', jsname='sCfAK')
 
             health_data = []
@@ -60,19 +60,19 @@ def scrape_health_news():
 
                         health_data.append(news_item)
 
-                        # Verileri MySQL veritabanına ekleyin
+                        # Insert data into MySQL database
                         insert_query = 'INSERT INTO news.news_articles (category, source, url, short_description, publication_date) VALUES (%s, %s, %s, %s, %s)'
                         data = ("Sağlık", source_text, news_url, summary_text, date_text)
                         cursor.execute(insert_query, data)
                         connection.commit()
 
-            result["Status"] = "Başarılı"
-            result["Message"] = "Sağlık haberleri başarıyla MySQL veritabanına eklenmiştir."
+            result["Status"] = "Successful"
+            result["Message"] = "Health news has been successfully added to the MySQL database."
             result["HealthData"] = health_data
 
     except Error as e:
-        result["Status"] = "Hata"
-        result["Message"] = f"MySQL Hatası: {e}"
+        result["Status"] = "Error"
+        result["Message"] = f"MySQL Error: {e}"
 
     finally:
         if 'cursor' in locals():

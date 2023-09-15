@@ -14,7 +14,7 @@ def scrape_business_news():
 
     result = {}
 
-    # İş kategorisi için URL'yi tanımla
+    # Define URL for job category
     url = "https://news.google.com/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx6TVdZU0FuUnlHZ0pVVWlnQVAB?hl=tr&gl=TR&ceid=TR%3Atr"
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
@@ -23,7 +23,7 @@ def scrape_business_news():
         if connection.open:
             cursor = connection.cursor()
 
-            # Verileri çıkar ve MySQL veritabanına yaz
+            # Extract data and write to MySQL database
             news_sections = soup.find_all('div', class_='EctEBd', jsname='rAluZb')
 
             business_data = []
@@ -60,19 +60,19 @@ def scrape_business_news():
 
                         business_data.append(news_item)
 
-                        # Verileri MySQL veritabanına ekleyin
+                        # Insert data into MySQL database
                         insert_query = 'INSERT INTO news.news_articles (category, source, url, short_description, publication_date) VALUES (%s, %s, %s, %s, %s)'
                         data = ("İş", source_text, news_url, summary_text, date_text)
                         cursor.execute(insert_query, data)
                         connection.commit()
 
-            result["Status"] = "Başarılı"
-            result["Message"] = "İş haberleri başarıyla MySQL veritabanına eklenmiştir."
+            result["Status"] = "Successful"
+            result["Message"] = "Business news has been successfully added to the MySQL database."
             result["BusinessData"] = business_data
 
     except Error as e:
-        result["Status"] = "Hata"
-        result["Message"] = f"MySQL Hatası: {e}"
+        result["Status"] = "Error"
+        result["Message"] = f"MySQL Error: {e}"
 
     finally:
         if 'cursor' in locals():

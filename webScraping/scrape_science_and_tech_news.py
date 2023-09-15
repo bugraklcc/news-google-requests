@@ -14,7 +14,7 @@ def scrape_science_and_tech_news():
 
     result = {}
 
-    # Bilim ve Teknoloji kategorisi için URL'yi tanımla
+    # Define URL for Science and Technology category
     url = "https://news.google.com/topics/CAAqKAgKIiJDQkFTRXdvSkwyMHZNR1ptZHpWbUVnSjBjaG9DVkZJb0FBUAE?hl=tr&gl=TR&ceid=TR%3Atr"
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
@@ -23,7 +23,7 @@ def scrape_science_and_tech_news():
         if connection.open:
             cursor = connection.cursor()
 
-            # Verileri çıkar ve MySQL veritabanına yaz
+            # Extract data and write to MySQL database
             news_sections = soup.find_all('a', class_='brSCsc', jsname='sCfAK')
 
             science_and_tech_data = []
@@ -61,19 +61,19 @@ def scrape_science_and_tech_news():
 
                         science_and_tech_data.append(news_item)
 
-                        # Verileri MySQL veritabanına ekleyin
+                        # Insert data into MySQL database
                         insert_query = 'INSERT INTO news.news_articles (category, source, url, short_description, publication_date) VALUES (%s, %s, %s, %s, %s)'
                         data = ("Bilim ve Teknoloji", source_text, news_url, summary_text, date_text)
                         cursor.execute(insert_query, data)
                         connection.commit()
 
-            result["Status"] = "Başarılı"
-            result["Message"] = "Bilim ve Teknoloji haberleri başarıyla MySQL veritabanına eklenmiştir."
+            result["Status"] = "Successful"
+            result["Message"] = "Science and Technology news has been successfully added to MySQL database."
             result["ScienceAndTechData"] = science_and_tech_data
 
     except Error as e:
-        result["Status"] = "Hata"
-        result["Message"] = f"MySQL Hatası: {e}"
+        result["Status"] = "Error"
+        result["Message"] = f"MySQL Error: {e}"
 
     finally:
         if 'cursor' in locals():
