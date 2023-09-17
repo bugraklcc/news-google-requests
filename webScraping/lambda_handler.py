@@ -1,11 +1,11 @@
-from sports_scraper import scrape_sports_news
-from scrape_turkey_news import scrape_turkey_news
-from scrape_world_news import scrape_world_news
-from scrape_local_news import scrape_local_news
-from scrape_business_news import scrape_business_news
-from scrape_science_and_tech_news import scrape_science_and_tech_news
-from scrape_entertainment_news import scrape_entertainment_news
-from scrape_health_news import scrape_health_news
+from my_news.sports_scraper import scrape_sports_news
+from my_news.scrape_turkey_news import scrape_turkey_news
+from my_news.scrape_world_news import scrape_world_news
+from my_news.scrape_local_news import scrape_local_news
+from my_news.scrape_business_news import scrape_business_news
+from my_news.scrape_science_and_tech_news import scrape_science_and_tech_news
+from my_news.scrape_entertainment_news import scrape_entertainment_news
+from my_news.scrape_health_news import scrape_health_news
 
 
 def lambda_handler(event, context):
