@@ -77,11 +77,16 @@ if __name__ == "__main__":
 
 
 def create_connection():
+    host = 'database-1.cmbjzgj4iu72.us-east-1.rds.amazonaws.com'
+    user = 'admin'
+    password = 'password123.+'
+    database = 'news'
+
     connection = pymysql.connect(
-        host='database-1.cmbjzgj4iu72.us-east-1.rds.amazonaws.com',
-        user='admin',
-        password='password123.+',
-        database='news'
+        host=host,
+        user=user,
+        password=password,
+        database=database
     )
     return connection
 
@@ -102,8 +107,3 @@ def insert_to_db(connection, all_news):
     finally:
         if 'cursor' in locals():
             cursor.close()
-    status = all_news[0].get("Status", "")
-    message = all_news[0].get("Message", "")
-    print(f"Status: {status}, Message: {message}")
-
-
