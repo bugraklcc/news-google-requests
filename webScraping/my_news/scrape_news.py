@@ -5,6 +5,29 @@ import pymysql
 from pymysql import Error
 
 
+# Function to read the configuration file
+def read_config_file(config_file_path):
+    try:
+        with open(config_file_path, "r", encoding="utf-8") as config_file:
+            config_data = json.load(config_file)
+        return config_data
+    except FileNotFoundError:
+        print("Config file not found.")
+        return None
+    except json.JSONDecodeError:
+        print("Config file is in an invalid JSON format.")
+        return None
+
+
+# Function to get the category-url mapping from the configuration
+def get_category_url_map(config=None):
+    if not config:
+        config = read_config_file("config.json")  # Default path for the config file
+
+    return config.get("category_url_map", {})
+
+
+# Function to scrape news articles from a given category and URL
 def scrape_news(category, url):
     result = {}
 
@@ -54,43 +77,18 @@ def scrape_news(category, url):
     return result
 
 
-if __name__ == "__main__":
-    category_url_map = {
-        "Türkiye": "https://news.google.com/topics/CAAqIggKIhxDQkFTRHdvSkwyMHZNREY2Ym1OZkVnSjBjaWdBUAE?hl=tr&gl=TR&ceid=TR%3Atr",
-        "Dünya": "https://news.google.com/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1YlY4U0FuUnlHZ0pVVWlnQVAB?hl=tr&gl=TR&ceid=TR%3Atr",
-        "Yerel": "https://news.google.com/topics/CAAqHAgKIhZDQklTQ2pvSWJHOWpZV3hmZGpJb0FBUAE/sections/CAQiUENCSVNOam9JYkc5allXeGZkakpDRUd4dlkyRnNYM1l5WDNObFkzUnBiMjV5Q3hJSkwyMHZNRGs1TkRsdGVnc0tDUzl0THpBNU9UUTViU2dBKjEIACotCAoiJ0NCSVNGem9JYkc5allXeGZkako2Q3dvSkwyMHZNRGs1TkRsdEtBQVABUAE?hl=tr&gl=TR&ceid=TR%3Atr",
-        "İş": "https://news.google.com/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx6TVdZU0FuUnlHZ0pVVWlnQVAB?hl=tr&gl=TR&ceid=TR%3Atr",
-        "Bilim ve Teknoloji": "https://news.google.com/topics/CAAqKAgKIiJDQkFTRXdvSkwyMHZNR1ptZHpWbUVnSjBjaG9DVkZJb0FBUAE?hl=tr&gl=TR&ceid=TR%3Atr",
-        "Eğlence": "https://news.google.com/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNREpxYW5RU0FuUnlHZ0pVVWlnQVAB?hl=tr&gl=TR&ceid=TR%3Atr",
-        "Spor": "https://news.google.com/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp1ZEdvU0FuUnlHZ0pVVWlnQVAB?hl=tr&gl=TR&ceid=TR%3Atr",
-        "Sağlık": "https://news.google.com/topics/CAAqIQgKIhtDQkFTRGdvSUwyMHZNR3QwTlRFU0FuUnlLQUFQAQ?hl=tr&gl=TR&ceid=TR%3Atr",
-    }
-
-    all_news = []
-
-    for category, url in category_url_map.items():
-        scrape_result = scrape_news(category, url)
-        all_news += scrape_result.get(f"{category}Data", [])
-
-    json_data = json.dumps(all_news, indent=4, ensure_ascii=False)
-    print(json_data)
-
-
-def create_connection():
-    host = 'database-1.cmbjzgj4iu72.us-east-1.rds.amazonaws.com'
-    user = 'admin'
-    password = 'password123.+'
-    database = 'news'
-
+# Function to create a database connection
+def create_connection(db_host, db_user, db_password, db_database):
     connection = pymysql.connect(
-        host=host,
-        user=user,
-        password=password,
-        database=database
+        host=db_host,
+        user=db_user,
+        password=db_password,
+        database=db_database
     )
     return connection
 
 
+# Function to insert scraped news data into a database
 def insert_to_db(connection, all_news):
     try:
         if connection.open:
@@ -107,3 +105,38 @@ def insert_to_db(connection, all_news):
     finally:
         if 'cursor' in locals():
             cursor.close()
+
+
+if __name__ == "__main__":
+    # Read the configuration file
+    config = read_config_file("config.json")  # Default path for the config file
+    category_url_map = get_category_url_map(config)
+
+    all_news = []
+
+    # Scrape news data for each category and store it in the all_news list
+    for category, url in category_url_map.items():
+        scrape_result = scrape_news(category, url)
+        all_news += scrape_result.get(f"{category}Data", [])
+
+    # Convert the scraped data to JSON format and print it
+    json_data = json.dumps(all_news, indent=4, ensure_ascii=False)
+    print(json_data)
+
+    # Get database configuration from the config file
+    db_config = config.get("db_config", {})
+
+    db_host = db_config.get("host", "")
+    db_user = db_config.get("user", "")
+    db_password = db_config.get("password", "")
+    db_database = db_config.get("database", "")
+
+    # Create a database connection
+    connection = create_connection(db_host, db_user, db_password, db_database)
+
+    if connection:
+        print("Database connection successfully established.")
+        # Insert scraped news data into the database
+        insert_to_db(connection, all_news)
+    else:
+        print("Database connection could not be established.")
