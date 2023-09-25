@@ -1,1 +1,0 @@
-SELECT * FROM news.news_articles;

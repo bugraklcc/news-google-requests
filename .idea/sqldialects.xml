@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SqlResolveMappings">
+    <file url="file://$PROJECT_DIR$/lambda_handler.py" scope="{&quot;node&quot;:{  &quot;@negative&quot;:&quot;1&quot;,  &quot;group&quot;:{   &quot;@kind&quot;:&quot;root&quot;,   &quot;node&quot;:{    &quot;name&quot;:{     &quot;@qname&quot;:&quot;448d36fd-272e-461f-90ec-f3ffee2a909b&quot;    }   }  } }}" />
+    <file url="file://$PROJECT_DIR$/print_to_file/csv_file.py" scope="{&quot;node&quot;:{  &quot;@negative&quot;:&quot;1&quot;,  &quot;group&quot;:{   &quot;@kind&quot;:&quot;root&quot;,   &quot;node&quot;:{    &quot;name&quot;:{     &quot;@qname&quot;:&quot;448d36fd-272e-461f-90ec-f3ffee2a909b&quot;    }   }  } }}" />
+    <file url="file://$PROJECT_DIR$/print_to_file/xlsx_file.py" scope="{&quot;node&quot;:{  &quot;@negative&quot;:&quot;1&quot;,  &quot;group&quot;:{   &quot;@kind&quot;:&quot;root&quot;,   &quot;node&quot;:{    &quot;name&quot;:{     &quot;@qname&quot;:&quot;448d36fd-272e-461f-90ec-f3ffee2a909b&quot;    }   }  } }}" />
+  </component>
+</project>

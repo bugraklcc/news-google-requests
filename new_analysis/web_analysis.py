@@ -12,6 +12,7 @@ connection = pymysql.connect(
 categories = input(
     "Analiz yapmak istediğiniz kategorileri virgülle ayırarak girin (örneğin: Spor,Teknoloji,Ekonomi): ").split(',')
 
+
 # Fonksiyon: Veritabanı sorgusu çalıştırma ve sonuçları alma
 def run_query(query, *params):
     with connection.cursor() as cursor:

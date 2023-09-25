@@ -24,6 +24,6 @@ def lambda_handler(event, context):
     connection = create_connection(db_host, db_user, db_password, db_database)
     if connection:
         insert_to_db(connection, all_news)
-        return "The data has been added successfully.", all_news
+        return f'The data has been added successfully.', all_news
     else:
         return "Could not create database connection."
