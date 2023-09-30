@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS CloudFormation Template to create a Lambda function, Layer, IAM Role, and EventBridge rule.
+
+Resources:
+  MyPythonLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      LayerName: MyPythonLayer
+      Description: My Python Layer
+      Content:
+        S3Bucket: myawsbucka
+        S3Key: python.zip
+      CompatibleRuntimes:
+        - python3.11
+
+  MyLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: MyLambdaExecutionRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: MyLambdaExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - rds-db:connect
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource: 'arn:aws:s3:::myawsbucka/webScraping.zip'
+
+  MyLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: MyLambdaFunction
+      Handler: lambda_handler.lambda_handler
+      Role: !GetAtt MyLambdaExecutionRole.Arn
+      Runtime: python3.11
+      MemorySize: 128
+      Timeout: 70
+      Layers:
+        - !Ref MyPythonLayer
+      Code:
+        S3Bucket: myawsbucka
+        S3Key: webScraping.zip
+
+  MyEventBridgeRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: MyEventBridgeRule
+      Description: EventBridge rule to trigger Lambda function every hour
+      ScheduleExpression: "cron(0 * * * ? *)"
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt MyLambdaFunction.Arn
+          Id: TargetId
+
+Outputs:
+  MyLambdaFunctionArn:
+    Description: ARN of the created Lambda function.
+    Value: !GetAtt MyLambdaFunction.Arn
